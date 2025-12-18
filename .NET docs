@@ -1,0 +1,79 @@
+###############################
+https://chatgpt.com/c/69440b15-0370-8333-8dfe-32810ead7287
+testing
+
+You created a separate test project
+Products.Tests
+
+Why separate?
+
+Tests should never live inside the API project
+
+They must reference the API project, not be compiled into it
+
+That’s why we fixed this in Products.csproj
+
+<ItemGroup>
+  <Compile Remove="Products.Tests/**/*.cs" />
+</ItemGroup>
+
+You chose xUnit as the test framework
+
+Instead of using SQL Server in tests, we used:
+EF Core InMemory for testing
+
+Why?
+
+Tests must be fast
+
+Tests must not depend on a real database
+
+Each test can start with clean data
+
+Why you needed Microsoft.AspNetCore.Mvc.Testing
+
+This package provides:
+
+WebApplicationFactory
+
+In-memory hosting
+
+Test server
+
+HTTP pipeline simulation
+
+Without it, you got this error:
+
+WebApplicationFactory<> could not be found
+
+public class ProductControllerTests
+: IClassFixture<CustomWebApplicationFactory>
+
+Means:
+
+One API instance per test class
+
+Faster execution
+
+Shared setup
+
+Each [Fact]:
+
+Sends HTTP requests
+
+Verifies responses
+
+Confirms API behavior
+
+Example:
+
+[Fact]
+public async Task GetProducts_ReturnsOk()
+{
+var response = await \_client.GetAsync("/api/products");
+response.EnsureSuccessStatusCode();
+}
+This checks:
+✔️ API starts
+✔️ Route exists
+✔️ Controller works
