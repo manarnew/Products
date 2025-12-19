@@ -22,21 +22,27 @@ namespace Products.Controllers
             return Ok(products);
         }
         [HttpPost]
-public IActionResult AddProduct([FromBody] ProductDto addProductDto)
-{
-    var product = new Product
-    {
-        Id = Guid.NewGuid(),                   // Important: generate a new Id
-        Name = addProductDto.Name,
-        Description = addProductDto.Description,
-        Price = addProductDto.Price
-    };
+        public IActionResult AddProduct([FromBody] ProductDto addProductDto)
+        {
+            var product = new Product
+            {
+                Id = Guid.NewGuid(),
+                Name = addProductDto.Name,
+                Description = addProductDto.Description,
+                Price = addProductDto.Price
+            };
 
-    dbContext.Products.Add(product);
-    dbContext.SaveChanges();
+            dbContext.Products.Add(product);
+            dbContext.SaveChanges();
 
-    return Ok(product);
-}
+            return CreatedAtAction(
+                nameof(GetProductById),
+                new { id = product.Id },
+                product
+            );
+        }
+
+
         [HttpGet]
         [Route("{id:guid}")]
         public IActionResult GetProductById(Guid id)
@@ -47,25 +53,25 @@ public IActionResult AddProduct([FromBody] ProductDto addProductDto)
                 return NotFound();
             }
             return Ok(product);
-    }
-    [HttpPut]
-    [Route("{id:guid}")]
-    public IActionResult UpdateProduct(Guid id,ProductDto productDto)
-    {
-        var existingProduct = dbContext.Products.Find(id);
-        if (existingProduct == null)
+        }
+        [HttpPut("{id:guid}")]
+        public IActionResult UpdateProduct(Guid id, [FromBody] ProductDto productDto)
         {
-            return NotFound();
+            var existingProduct = dbContext.Products.Find(id);
+            if (existingProduct == null)
+            {
+                return NotFound();
+            }
+
+            existingProduct.Name = productDto.Name;
+            existingProduct.Description = productDto.Description;
+            existingProduct.Price = productDto.Price;
+
+            dbContext.SaveChanges();
+
+            return Ok(existingProduct);
         }
 
-        existingProduct.Name = productDto.Name;
-        existingProduct.Description = productDto.Description;
-        existingProduct.Price = productDto.Price;
-
-        dbContext.SaveChanges();
-
-        return Ok(existingProduct);
-    }
     }
 
-    }
+}
