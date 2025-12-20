@@ -100,4 +100,36 @@ public class ProductControllerTests
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
+
+   [Fact]
+    public async Task Delete_product_removes_data()
+    {
+        // Arrange – create product
+        var dto = new ProductDto
+        {
+            Name = "Tablet Pro",
+            Description = "New",
+            Price = 900
+        };
+
+        var postResponse = await _client.PostAsJsonAsync("/api/Product", dto);
+        postResponse.EnsureSuccessStatusCode();
+
+        var createdProduct =
+            await postResponse.Content.ReadFromJsonAsync<Product>();
+
+        // Act – delete product
+        var deleteResponse =
+            await _client.DeleteAsync($"/api/Product/{createdProduct!.Id}");
+
+        // Assert – delete succeeded
+        Assert.Equal(HttpStatusCode.NoContent, deleteResponse.StatusCode);
+
+        // Assert – product no longer exists
+        var getResponse =
+            await _client.GetAsync($"/api/Product/{createdProduct.Id}");
+
+        Assert.Equal(HttpStatusCode.NotFound, getResponse.StatusCode);
+    }
+
 }

@@ -1,5 +1,7 @@
 using Products.Data;
 using Microsoft.EntityFrameworkCore;
+using Products.Repositories;  // For IProductRepository and ProductRepository
+using Products.Services;      // For IProductService and ProductService
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +13,10 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))
 );
+
+builder.Services.AddScoped<IProductRepository, ProductRepository>();
+builder.Services.AddScoped<IProductService, ProductService>();
+
 
 var app = builder.Build();
 
